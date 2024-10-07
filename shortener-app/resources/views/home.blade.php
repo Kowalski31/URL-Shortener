@@ -30,10 +30,13 @@
         <!-- Display rút gọn URL nếu có -->
         @if(session('short_url'))
         <div class="mt-3">
-            <h4>Shortened URL:</h4>
-            <p><a href="{{ session('original_url') }}" target="_blank">{{ session('short_url') }}</a></p>
+            <h4>Shortened URL Details:</h4>
+            <p><strong>Original URL:</strong> <a href="{{ session('original_url') }}" target="_blank">{{ session('original_url') }}</a></p>
+            <p><strong>Shortened URL:</strong> <a href="{{ session('short_url') }}" target="_blank">{{ session('short_url') }}</a></p>
+            <p><strong>Created At:</strong> {{ session('created_at') }}</p>
         </div>
         @endif
+
     </div>
 
     <!-- Validate ở phía Frontend -->

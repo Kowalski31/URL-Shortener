@@ -11,10 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('url_shorteners', function (Blueprint $table) {
+        Schema::create('url_mappings', function (Blueprint $table) {
             $table->id();
             $table->string('original_url');
-            $table->string('short_url');
+            $table->string('short_url')->unique();
             $table->timestamps();
         });
     }
@@ -24,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('url_shorteners');
+        Schema::dropIfExists('url_mappings');
     }
 };

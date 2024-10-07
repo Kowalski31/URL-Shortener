@@ -11,4 +11,4 @@ Route::get('home', function(){
     return view('home');
 });
 
-Route::post('/shorten', [URLShortenerController::class, 'encode'])->name('shorten.url');
+Route::post('/shorten', [URLShortenerController::class, 'shortenURL'])->name('shorten.url');
