@@ -48,10 +48,10 @@ class URLShortenerController extends Controller
                 ];
             });
 
-            return response()->json([
-                'status' => 'success',
-                'data' => $url_mappings
-            ], 200);
+        return response()->json([
+            'status' => 'success',
+            'data' => $url_mappings
+        ], 200);
     }
 
     public function redirectShortURL(String $shortURL)
@@ -84,8 +84,6 @@ class URLShortenerController extends Controller
         } while($existing_record);
         
         return $shortURL;
-
-        
     }
 
     // Decode function: Convert short URL back to hash bytes

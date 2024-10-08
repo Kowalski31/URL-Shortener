@@ -13,26 +13,20 @@
         <h1 class="text-center">URL Shortener</h1>
 
         <!-- Form nhập URL -->
-        <form id="urlForm" action="{{ route('shorten.url') }}" method="POST">
-            @csrf
+        <form id="urlForm">
             <div class="mb-3">
                 <label for="original_url" class="form-label">Enter a URL</label>
-                <input type="text" class="form-control @error('original_url') is-invalid @enderror" id="original_url" name="original_url" placeholder="https://example.com" required>
-                @error('original_url')
-                <div class="invalid-feedback">
-                    {{ $message }}
-                </div>
-                @enderror
+                <input type="text" class="form-control" id="original_url" name="original_url"
+                    placeholder="https://example.com" required>
+                <div class="invalid-feedback" id="urlError"></div>
             </div>
             <button type="submit" class="btn btn-primary">Shorten</button>
         </form>
 
-        <!-- Display rút gọn URL nếu có -->
         <!-- Bảng danh sách các URL rút gọn -->
-        @if(session('url_mappings') && count(session('url_mappings')) > 0)
         <div class="mt-3">
             <h4>Shortened URLs List:</h4>
-            <table class="table table-bordered">
+            <table class="table table-bordered" id="urlTable">
                 <thead>
                     <tr>
                         <th>#</th>
@@ -41,33 +35,68 @@
                         <th>Created At</th>
                     </tr>
                 </thead>
-                <tbody>
-                    @foreach(session('url_mappings') as $index => $urlMapping)
-                    <tr>
-                        <td>{{ $index + 1 }}</td>
-                        <td><a href="{{ $urlMapping['original_url'] }}" target="_blank">{{ $urlMapping['original_url'] }}</a></td>
-                        <td><a href="{{ url('/') . '/' . $urlMapping['short_url'] }}" target="_blank">{{ $urlMapping['short_url'] }}</a></td>
-                        <td>{{ $urlMapping['created_at'] }}</td>
-                    </tr>
-                    @endforeach
-                </tbody>
+                <tbody id="urlList"></tbody>
             </table>
         </div>
-        @endif
-
     </div>
 
-    <!-- Validate ở phía Frontend -->
+    <!-- Validate và gửi request AJAX -->
     <script>
         document.getElementById('urlForm').addEventListener('submit', function(e) {
+            e.preventDefault(); // Ngăn form nạp lại trang
             const urlInput = document.getElementById('original_url');
             const urlValue = urlInput.value;
             const urlPattern = /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$/;
 
+            // Xóa lỗi hiện tại
+            document.getElementById('urlError').textContent = '';
+            urlInput.classList.remove('is-invalid');
+
             if (!urlPattern.test(urlValue)) {
-                e.preventDefault();
-                alert('Invalid URL format');
+                urlInput.classList.add('is-invalid');
+                document.getElementById('urlError').textContent = 'Invalid URL format';
+                return;
             }
+
+            // Gửi AJAX request
+            fetch("{{ route('shorten.url') }}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    },
+                    body: JSON.stringify({
+                        original_url: urlValue
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        const urlList = document.getElementById('urlList');
+                        urlList.innerHTML = ''; // Xóa danh sách cũ
+
+                        data.data.forEach((urlMapping, index) => {
+                            const row = document.createElement('tr');
+
+                            row.innerHTML = `
+                                <td>${index + 1}</td>
+                                <td><a href="${urlMapping.original_url}" target="_blank">${urlMapping.original_url}</a></td>
+                                <td><a href="${window.location.origin}/${urlMapping.short_url}" target="_blank">${urlMapping.short_url}</a></td>
+                                <td>${urlMapping.created_at}</td>
+                            `;
+
+                            urlList.appendChild(row);
+                        });
+
+                        urlInput.value = ''; // Xóa input sau khi gửi thành công
+                    } else {
+                        alert(data.error || 'Error shortening URL');
+                    }
+                })
+                .catch(error => {
+                    alert('Error shortening URL');
+                    console.error('Error:', error);
+                });
         });
     </script>
 </body>
