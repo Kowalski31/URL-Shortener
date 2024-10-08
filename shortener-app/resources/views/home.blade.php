@@ -28,12 +28,30 @@
         </form>
 
         <!-- Display rút gọn URL nếu có -->
-        @if(session('short_url'))
+        <!-- Bảng danh sách các URL rút gọn -->
+        @if(session('url_mappings') && count(session('url_mappings')) > 0)
         <div class="mt-3">
-            <h4>Shortened URL Details:</h4>
-            <p><strong>Original URL:</strong> <a href="{{ session('original_url') }}" target="_blank">{{ session('original_url') }}</a></p>
-            <p><strong>Shortened URL:</strong> <a href="{{ session('short_url') }}" target="_blank">{{ session('short_url') }}</a></p>
-            <p><strong>Created At:</strong> {{ session('created_at') }}</p>
+            <h4>Shortened URLs List:</h4>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Original URL</th>
+                        <th>Shortened URL</th>
+                        <th>Created At</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach(session('url_mappings') as $index => $urlMapping)
+                    <tr>
+                        <td>{{ $index + 1 }}</td>
+                        <td><a href="{{ $urlMapping['original_url'] }}" target="_blank">{{ $urlMapping['original_url'] }}</a></td>
+                        <td><a href="{{ url('/') . '/' . $urlMapping['short_url'] }}" target="_blank">{{ $urlMapping['short_url'] }}</a></td>
+                        <td>{{ $urlMapping['created_at'] }}</td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
         </div>
         @endif
 
