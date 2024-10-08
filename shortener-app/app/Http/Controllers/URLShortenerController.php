@@ -11,10 +11,20 @@ use App\Models\UrlMapping;
 
 class URLShortenerController extends Controller
 {
+    public function getURLs()
+    {
+        $url_mappings = UrlMapping::all(); 
+        return response()->json([
+            'status' => 'success',
+            'data' => $url_mappings
+        ]);
+    }
+
     public function shortenURL(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'original_url' => 'required|url',
+            'custom_short_code' => 'nullable|string|min:3|max:10|alpha_dash|unique:url_mappings,short_url',
         ]);
         
         if($validator->failed()){
@@ -32,7 +42,13 @@ class URLShortenerController extends Controller
             $originalURL = 'https://' . $originalURL;
         }
 
-        $shortURL = $this->encode($originalURL);
+        $customShortCode = $request->input('custom_short_code');
+
+        if ($customShortCode) {
+            $shortURL = $customShortCode;
+        } else {
+            $shortURL = $this->encode($originalURL);
+        }
 
         $object = new UrlMapping();
         $object->original_url = $originalURL;
