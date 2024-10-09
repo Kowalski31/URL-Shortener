@@ -55,15 +55,13 @@ class URLShortenerController extends Controller
         if ($customShortCode) {
             $shortURL = $customShortCode;
         } else {
-            $shortURL = $this->encode($originalURL);
+            $shortURL = $this->encode();
         }
 
         $object = new UrlMapping();
         $object->original_url = $originalURL;
         $object->short_url = $shortURL;
         $object->save();
-
-
 
         return response()->json([
             'status' => 'success',
@@ -88,16 +86,21 @@ class URLShortenerController extends Controller
 
 
     // Encode function: Shorten URL using MD5 and Base64
-    public function encode(String $originalURL)
+    public function encode()
     {
+        $attempts = 0;
+        $maxAttempts = 5;
+
         do {
-            $originalURLHash = md5($originalURL . microtime());
-
-            $originalURLHashBase64Safe = rtrim(strtr(base64_encode(hex2bin($originalURLHash)), '+/', '-_'), '=');
-
-            $shortURL = substr($originalURLHashBase64Safe, 0, 7);
+            $shortURL = substr(bin2hex(random_bytes(4)), 0, 7);
 
             $existing_record = UrlMapping::where('short_url', $shortURL)->first();
+            
+            $attempts++;
+
+            if ($attempts >= $maxAttempts) {
+                throw new \Exception('Unable to generate unique short URL. Please try again.');
+            }
         } while ($existing_record);
 
         return $shortURL;

@@ -24,7 +24,7 @@
             <div class="mb-3">
                 <label for="custom_short_code" class="form-label">Custom Short Code (optional)</label>
                 <input type="text" class="form-control" id="custom_short_code" name="custom_short_code"
-                    placeholder="Enter a custom code (3-10 characters)" maxlength="10" pattern="[A-Za-z0-9_\-]{3,10}">
+                    placeholder="Enter a custom unique code (3-10 characters)" maxlength="10" pattern="[A-Za-z0-9_\-]{3,10}">
                 <div class="invalid-feedback" id="customCodeError"></div>
             </div>
 
