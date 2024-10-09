@@ -84,8 +84,6 @@ class URLShortenerController extends Controller
         ], 404);
     }
 
-
-    // Encode function: Shorten URL using MD5 and Base64
     public function encode()
     {
         $attempts = 0;
@@ -107,20 +105,20 @@ class URLShortenerController extends Controller
     }
 
     // Decode function: Convert short URL back to hash bytes
-    public function decode(Request $request)
-    {
-        $shortURL = $request->input('short_url');
-        try {
-            // Decode Base64 URL Safe
-            $decodedBytes = base64_decode(str_pad(strtr($shortURL, '-_', '+/'), strlen($shortURL) % 4, '=', STR_PAD_RIGHT));
+    // public function decode(Request $request)
+    // {
+    //     $shortURL = $request->input('short_url');
+    //     try {
+    //         // Decode Base64 URL Safe
+    //         $decodedBytes = base64_decode(str_pad(strtr($shortURL, '-_', '+/'), strlen($shortURL) % 4, '=', STR_PAD_RIGHT));
 
-            return response()->json([
-                'decoded_bytes' => bin2hex($decodedBytes)
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'error' => 'Invalid short URL'
-            ], 400);
-        }
-    }
+    //         return response()->json([
+    //             'decoded_bytes' => bin2hex($decodedBytes)
+    //         ]);
+    //     } catch (\Exception $e) {
+    //         return response()->json([
+    //             'error' => 'Invalid short URL'
+    //         ], 400);
+    //     }
+    // }
 }

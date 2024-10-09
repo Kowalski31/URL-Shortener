@@ -92,18 +92,20 @@
         document.addEventListener('DOMContentLoaded', displayAllUrls);
 
         document.getElementById('urlForm').addEventListener('submit', function(e) {
-            e.preventDefault(); // Ngăn form nạp lại trang
+            e.preventDefault(); 
             const urlInput = document.getElementById('original_url');
-            const customCodeInput = document.getElementById('custom_short_code'); // Thêm dòng này
-            const urlValue = urlInput.value;
-            const customCodeValue = customCodeInput.value; // Lấy giá trị custom short code
-            const urlPattern = /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$/;
+            const customCodeInput = document.getElementById('custom_short_code'); 
+            const urlValue = urlInput.value.trim();
+            const customCodeValue = customCodeInput.value; 
+            const urlPattern = /^(https?:\/\/)?((([a-zA-Z0-9-]{1,63}\.)+[a-zA-Z]{2,})|((\d{1,3}\.){3}\d{1,3}))(:\d{1,5})?(\/[^\s]*)?(\?[^\s]*)?(#[^\s]*)?$/;
 
             // Xóa lỗi hiện tại
             document.getElementById('urlError').textContent = '';
             urlInput.classList.remove('is-invalid');
+            
+            console.log(urlPattern.test(urlValue));
 
-            if (!urlPattern.test(urlValue)) {
+            if (urlPattern.test(urlValue) == false) {
                 urlInput.classList.add('is-invalid');
                 document.getElementById('urlError').textContent = 'Invalid URL format';
                 return;
@@ -118,7 +120,7 @@
                     },
                     body: JSON.stringify({
                         original_url: urlValue,
-                        custom_short_code: customCodeValue // Thêm trường custom_short_code vào body
+                        custom_short_code: customCodeValue 
                     })
                 })
                 .then(response => response.json())
