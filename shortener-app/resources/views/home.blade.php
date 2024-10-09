@@ -65,15 +65,16 @@
                         const urlList = document.getElementById('urlList');
                         urlList.innerHTML = ''; // Xóa danh sách cũ
 
+                        var urlMapping = data.data;
                         data.data.forEach((urlMapping, index) => {
                             const row = document.createElement('tr');
 
                             row.innerHTML = `
-                    <td>${index + 1}</td>
-                    <td><a href="${urlMapping.original_url}" target="_blank">${urlMapping.original_url}</a></td>
-                    <td><a href="${window.location.origin}/${urlMapping.short_url}" target="_blank">${urlMapping.short_url}</a></td>
-                    <td>${urlMapping.created_at}</td>
-                `;
+                                <td>${index + 1}</td>
+                                <td><a href="${urlMapping.original_url}" target="_blank">${urlMapping.original_url}</a></td>
+                                <td><a href="${window.location.origin}/${urlMapping.short_url}" target="_blank">${urlMapping.short_url}</a></td>
+                                <td>${urlMapping.created_at}</td>
+                            `;
 
                             urlList.appendChild(row);
                         });
@@ -124,20 +125,21 @@
                 .then(data => {
                     if (data.status === 'success') {
                         const urlList = document.getElementById('urlList');
-                        urlList.innerHTML = ''; // Xóa danh sách cũ
+                        
 
-                        data.data.forEach((urlMapping, index) => {
-                            const row = document.createElement('tr');
 
-                            row.innerHTML = `
-                        <td>${index + 1}</td>
-                        <td><a href="${urlMapping.original_url}" target="_blank">${urlMapping.original_url}</a></td>
-                        <td><a href="${window.location.origin}/${urlMapping.short_url}" target="_blank">${urlMapping.short_url}</a></td>
-                        <td>${urlMapping.created_at}</td>
-                    `;
+                        const row = document.createElement('tr');
+                        const newIndex = urlList.rows.length + 1;
 
-                            urlList.appendChild(row);
-                        });
+                        row.innerHTML = `
+                                <td>${newIndex}</td>
+                                <td><a href="${data.original_url}" target="_blank">${data.original_url}</a></td>
+                                <td><a href="${window.location.origin}/${data.short_url}" target="_blank">${data.short_url}</a></td>
+                                <td>${data.created_at}</td>
+                            `;
+
+                        urlList.appendChild(row);
+
 
                         urlInput.value = ''; // Xóa input sau khi gửi thành công
                         customCodeInput.value = ''; // Xóa custom short code sau khi gửi thành công

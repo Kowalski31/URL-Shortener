@@ -13,7 +13,15 @@ class URLShortenerController extends Controller
 {
     public function getURLs()
     {
-        $url_mappings = UrlMapping::all(); 
+        $url_mappings = UrlMapping::select('original_url', 'short_url', 'created_at')->get()
+            ->map(function ($url_mapping) {
+                return [
+                    'original_url' => $url_mapping->original_url,
+                    'short_url' => $url_mapping->short_url,
+                    'created_at' => $url_mapping->created_at->format('Y-m-d H:i:s')
+                ];
+            });
+
         return response()->json([
             'status' => 'success',
             'data' => $url_mappings
@@ -26,8 +34,8 @@ class URLShortenerController extends Controller
             'original_url' => 'required|url',
             'custom_short_code' => 'nullable|string|min:3|max:10|alpha_dash|unique:url_mappings,short_url',
         ]);
-        
-        if($validator->failed()){
+
+        if ($validator->failed()) {
             return response()->json([
                 'error' => 'Invalid URL format',
                 'message' => $validator->errors(),
@@ -35,7 +43,7 @@ class URLShortenerController extends Controller
         }
 
         $originalURL = $request->input('original_url');
-        
+
         $parseUrl = parse_url($originalURL);
 
         if (!isset($parseUrl['scheme'])) {
@@ -55,18 +63,13 @@ class URLShortenerController extends Controller
         $object->short_url = $shortURL;
         $object->save();
 
-        $url_mappings = UrlMapping::select('original_url', 'short_url', 'created_at')->get()
-            ->map(function ($url_mapping) {
-                return [
-                    'original_url' => $url_mapping->original_url,
-                    'short_url' => $url_mapping->short_url,
-                    'created_at' => $url_mapping->created_at->format('Y-m-d H:i:s')
-                ];
-            });
+
 
         return response()->json([
             'status' => 'success',
-            'data' => $url_mappings
+            'original_url' => $originalURL,
+            'short_url' => $shortURL,
+            'created_at' => $object->created_at->format('Y-m-d H:i:s')
         ], 200);
     }
 
@@ -74,7 +77,7 @@ class URLShortenerController extends Controller
     {
         $record = UrlMapping::where('short_url', $shortURL)->first();
 
-        if($record){
+        if ($record) {
             return redirect()->away($record->original_url);
         }
 
@@ -83,12 +86,11 @@ class URLShortenerController extends Controller
         ], 404);
     }
 
-    
+
     // Encode function: Shorten URL using MD5 and Base64
     public function encode(String $originalURL)
     {
-        do 
-        {
+        do {
             $originalURLHash = md5($originalURL . microtime());
 
             $originalURLHashBase64Safe = rtrim(strtr(base64_encode(hex2bin($originalURLHash)), '+/', '-_'), '=');
@@ -96,9 +98,8 @@ class URLShortenerController extends Controller
             $shortURL = substr($originalURLHashBase64Safe, 0, 7);
 
             $existing_record = UrlMapping::where('short_url', $shortURL)->first();
+        } while ($existing_record);
 
-        } while($existing_record);
-        
         return $shortURL;
     }
 
