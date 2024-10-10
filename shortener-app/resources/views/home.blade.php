@@ -6,13 +6,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Home</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 </head>
 
 <body>
     <div class="container mt-5">
         <h1 class="text-center">URL Shortener</h1>
 
-        <!-- Form nhập URL -->
         <form id="urlForm">
             <div class="mb-3">
                 <label for="original_url" class="form-label">Enter a URL</label>
@@ -31,7 +33,6 @@
             <button type="submit" class="btn btn-primary">Shorten</button>
         </form>
 
-        <!-- Bảng danh sách các URL rút gọn -->
         <div class="mt-3">
             <h4>Shortened URLs List:</h4>
             <table class="table table-bordered" id="urlTable">
@@ -48,9 +49,8 @@
         </div>
     </div>
 
-    <!-- Validate và gửi request AJAX -->
+
     <script>
-        // Hàm để hiển thị tất cả các URL
         function displayAllUrls() {
             fetch("{{ route('get.urls') }}", {
                     method: 'GET',
@@ -63,16 +63,19 @@
                 .then(data => {
                     if (data.status === 'success') {
                         const urlList = document.getElementById('urlList');
-                        urlList.innerHTML = ''; // Xóa danh sách cũ
+                        urlList.innerHTML = '';
 
-                        var urlMapping = data.data;
-                        data.data.forEach((urlMapping, index) => {
+                        var urlMappings = data.data;
+                        urlMappings.forEach((urlMapping, index) => {
                             const row = document.createElement('tr');
 
                             row.innerHTML = `
                                 <td>${index + 1}</td>
                                 <td><a href="${urlMapping.original_url}" target="_blank">${urlMapping.original_url}</a></td>
-                                <td><a href="${window.location.origin}/${urlMapping.short_url}" target="_blank">${urlMapping.short_url}</a></td>
+                                <td>
+                                    <a href="${urlMapping.short_url}" target="_blank" id="shortUrl-${index}">${urlMapping.short_url}</a>
+                                    <button class="btn btn-sm btn-secondary ml-2" onclick="copyToClipboard('shortUrl-${index}')">Copy</button>
+                                </td>
                                 <td>${urlMapping.created_at}</td>
                             `;
 
@@ -88,21 +91,22 @@
                 });
         }
 
-        // Gọi hàm này ngay khi tài liệu đã tải
+
         document.addEventListener('DOMContentLoaded', displayAllUrls);
 
+
         document.getElementById('urlForm').addEventListener('submit', function(e) {
-            e.preventDefault(); 
+            e.preventDefault();
             const urlInput = document.getElementById('original_url');
-            const customCodeInput = document.getElementById('custom_short_code'); 
+            const customCodeInput = document.getElementById('custom_short_code');
             const urlValue = urlInput.value.trim();
-            const customCodeValue = customCodeInput.value; 
+            const customCodeValue = customCodeInput.value;
             const urlPattern = /^(https?:\/\/)?((([a-zA-Z0-9-]{1,63}\.)+[a-zA-Z]{2,})|((\d{1,3}\.){3}\d{1,3}))(:\d{1,5})?(\/[^\s]*)?(\?[^\s]*)?(#[^\s]*)?$/;
 
-            // Xóa lỗi hiện tại
+
             document.getElementById('urlError').textContent = '';
             urlInput.classList.remove('is-invalid');
-            
+
             console.log(urlPattern.test(urlValue));
 
             if (urlPattern.test(urlValue) == false) {
@@ -111,7 +115,7 @@
                 return;
             }
 
-            // Gửi AJAX request
+
             fetch("{{ route('shorten.url') }}", {
                     method: 'POST',
                     headers: {
@@ -120,31 +124,28 @@
                     },
                     body: JSON.stringify({
                         original_url: urlValue,
-                        custom_short_code: customCodeValue 
+                        custom_short_code: customCodeValue
                     })
                 })
                 .then(response => response.json())
                 .then(data => {
                     if (data.status === 'success') {
                         const urlList = document.getElementById('urlList');
-                        
-
 
                         const row = document.createElement('tr');
-                        const newIndex = urlList.rows.length + 1;
+                        const newIndex = urlList.children.length + 1;
 
                         row.innerHTML = `
                                 <td>${newIndex}</td>
                                 <td><a href="${data.original_url}" target="_blank">${data.original_url}</a></td>
-                                <td><a href="${window.location.origin}/${data.short_url}" target="_blank">${data.short_url}</a></td>
+                                <td><a href="${data.short_url}" target="_blank">${data.short_url}</a></td>
                                 <td>${data.created_at}</td>
                             `;
 
                         urlList.appendChild(row);
 
-
-                        urlInput.value = ''; // Xóa input sau khi gửi thành công
-                        customCodeInput.value = ''; // Xóa custom short code sau khi gửi thành công
+                        urlInput.value = '';
+                        customCodeInput.value = '';
                     } else {
                         alert(data.error || 'Error shortening URL');
                     }
@@ -154,7 +155,20 @@
                     console.error('Error:', error);
                 });
         });
+
+        function copyToClipboard(elementId) {
+            const urlElement = document.getElementById(elementId);
+            const tempInput = document.createElement('input');
+            document.body.appendChild(tempInput);
+            tempInput.value = urlElement.href;
+            tempInput.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+
+            toastr.success('Copied to clipboard: ' + urlElement.href);
+        }
     </script>
+    
 </body>
 
 </html>

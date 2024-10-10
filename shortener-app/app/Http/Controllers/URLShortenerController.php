@@ -35,9 +35,9 @@ class URLShortenerController extends Controller
             'custom_short_code' => 'nullable|string|min:3|max:10|alpha_dash|unique:url_mappings,short_url',
         ]);
 
-        if ($validator->failed()) {
+        if ($validator->fails()) {
             return response()->json([
-                'error' => 'Invalid URL format',
+                'error' => 'Validation error',
                 'message' => $validator->errors(),
             ], 400);
         }
@@ -93,7 +93,7 @@ class URLShortenerController extends Controller
             $shortURL = substr(bin2hex(random_bytes(4)), 0, 7);
 
             $existing_record = UrlMapping::where('short_url', $shortURL)->first();
-            
+
             $attempts++;
 
             if ($attempts >= $maxAttempts) {
@@ -105,6 +105,7 @@ class URLShortenerController extends Controller
     }
 
     // Decode function: Convert short URL back to hash bytes
+
     // public function decode(Request $request)
     // {
     //     $shortURL = $request->input('short_url');
