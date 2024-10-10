@@ -9,6 +9,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
 </head>
 
 <body>
@@ -74,7 +75,7 @@
                                 <td><a href="${urlMapping.original_url}" target="_blank">${urlMapping.original_url}</a></td>
                                 <td>
                                     <a href="${urlMapping.short_url}" target="_blank" id="shortUrl-${index}">${urlMapping.short_url}</a>
-                                    <button class="btn btn-sm btn-secondary ml-2" onclick="copyToClipboard('shortUrl-${index}')">Copy</button>
+                                    <button class="btn btn-sm btn-secondary ml-2" onclick="copyToClipboard('${urlMapping.short_url}')">Copy</button>
                                 </td>
                                 <td>${urlMapping.created_at}</td>
                             `;
@@ -91,9 +92,7 @@
                 });
         }
 
-
         document.addEventListener('DOMContentLoaded', displayAllUrls);
-
 
         document.getElementById('urlForm').addEventListener('submit', function(e) {
             e.preventDefault();
@@ -103,18 +102,14 @@
             const customCodeValue = customCodeInput.value;
             const urlPattern = /^(https?:\/\/)?((([a-zA-Z0-9-]{1,63}\.)+[a-zA-Z]{2,})|((\d{1,3}\.){3}\d{1,3}))(:\d{1,5})?(\/[^\s]*)?(\?[^\s]*)?(#[^\s]*)?$/;
 
-
             document.getElementById('urlError').textContent = '';
             urlInput.classList.remove('is-invalid');
-
-            console.log(urlPattern.test(urlValue));
 
             if (urlPattern.test(urlValue) == false) {
                 urlInput.classList.add('is-invalid');
                 document.getElementById('urlError').textContent = 'Invalid URL format';
                 return;
             }
-
 
             fetch("{{ route('shorten.url') }}", {
                     method: 'POST',
@@ -136,11 +131,14 @@
                         const newIndex = urlList.children.length + 1;
 
                         row.innerHTML = `
-                                <td>${newIndex}</td>
-                                <td><a href="${data.original_url}" target="_blank">${data.original_url}</a></td>
-                                <td><a href="${data.short_url}" target="_blank">${data.short_url}</a></td>
-                                <td>${data.created_at}</td>
-                            `;
+                            <td>${newIndex}</td>
+                            <td><a href="${data.original_url}" target="_blank">${data.original_url}</a></td>
+                            <td>
+                                <a href="${data.short_url}" target="_blank">${data.short_url}</a>
+                                <button class="btn btn-sm btn-secondary ml-2" onclick="copyToClipboard('${data.short_url}')">Copy</button>
+                            </td>
+                            <td>${data.created_at}</td>
+            `;
 
                         urlList.appendChild(row);
 
@@ -156,19 +154,18 @@
                 });
         });
 
-        function copyToClipboard(elementId) {
-            const urlElement = document.getElementById(elementId);
+        function copyToClipboard(url) {
             const tempInput = document.createElement('input');
             document.body.appendChild(tempInput);
-            tempInput.value = urlElement.href;
+            tempInput.value = url; 
             tempInput.select();
             document.execCommand('copy');
             document.body.removeChild(tempInput);
 
-            toastr.success('Copied to clipboard: ' + urlElement.href);
+            toastr.success('Copied to clipboard: ' + url);
         }
     </script>
-    
+
 </body>
 
 </html>

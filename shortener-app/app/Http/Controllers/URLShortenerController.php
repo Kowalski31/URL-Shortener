@@ -4,8 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-
-use function PHPSTORM_META\type;
+use Illuminate\Support\Carbon;
 
 use App\Models\UrlMapping;
 
@@ -13,7 +12,8 @@ class URLShortenerController extends Controller
 {
     public function getURLs()
     {
-        $url_mappings = UrlMapping::select('original_url', 'short_url', 'created_at')->get()
+        $url_mappings = UrlMapping::select('original_url', 'short_url', 'created_at')
+            ->get()
             ->map(function ($url_mapping) {
                 return [
                     'original_url' => $url_mapping->original_url,
