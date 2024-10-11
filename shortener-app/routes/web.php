@@ -11,8 +11,4 @@ Route::get('home', function(){
     return view('home');
 });
 
-Route::get('/get-urls', [URLShortenerController::class, 'getURLs'])->name('get.urls');
 
-Route::post('/shorten', [URLShortenerController::class, 'shortenURL'])->name('shorten.url');
-
-Route::get('/{shortURL}', [URLShortenerController::class, 'redirectShortURL']);
