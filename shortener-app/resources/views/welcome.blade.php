@@ -9,9 +9,10 @@
 
 <body>
 
-    <id id="hello-react"></id>
+    <!-- <id id="hello-react"></id> -->
+    <div id="url-shortener-app"></div>
     @viteReactRefresh
-    @vite('resources/js/app.js')
+    @vite('resources/js/app.jsx')
 </body>
 
 </html>
