@@ -13,8 +13,8 @@ class URLShortenerController extends Controller
     public function getURLs()
     {
         $url_mappings = UrlMapping::select('original_url', 'short_url', 'created_at')
-            ->get()
-            ->map(function ($url_mapping) {
+            ->paginate(10)
+            ->through(function ($url_mapping) {
                 return [
                     'original_url' => $url_mapping->original_url,
                     'short_url' => $url_mapping->short_url,
