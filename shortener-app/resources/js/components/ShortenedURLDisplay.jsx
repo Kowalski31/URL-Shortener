@@ -1,4 +1,6 @@
 import React from 'react';
+import 'toastr/build/toastr.css';
+import toastr from 'toastr';
 
 function ShortenedURLDisplay({ shortenedUrl }) {
     const copyToClipboard = () => {

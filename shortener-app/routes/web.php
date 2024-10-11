@@ -15,4 +15,4 @@ Route::get('/', function () {
 
 // Route::post('/shorten', [URLShortenerController::class, 'shortenURL'])->name('api.shorten.url');
 
-// Route::get('/{shortURL}', [URLShortenerController::class, 'redirectShortURL']);
+Route::get('/{shortURL}', [URLShortenerController::class, 'redirectShortURL']);
