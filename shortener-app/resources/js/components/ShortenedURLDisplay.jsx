@@ -4,7 +4,7 @@ import toastr from 'toastr';
 
 function ShortenedURLDisplay({ shortenedUrl }) {
     const copyToClipboard = () => {
-        navigator.clipboard.writeText(shortenedUrl.short_url);
+        navigator.clipboard.writeText(`${window.location.origin}/${shortenedUrl.short_url}`);
         toastr.success('Shortened URL copied to clipboard!');
     };
 

@@ -63,7 +63,7 @@ const URLTable = ({ shortenedUrls = [] }) => {
 };
 
 function copyToClipboard(url) {
-    navigator.clipboard.writeText(url);
+    navigator.clipboard.writeText(`${window.location.origin}/${url}`);
     toastr.success('Copied to clipboard: ' + url);
 }
 
